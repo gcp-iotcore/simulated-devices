@@ -10,14 +10,14 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-func jwtHandler(tlsConfig *tls.Config, projectId string, privateKey string) (string, error) {
+func JWTHandler(tlsConfig *tls.Config, projectId string, privateKey string) (string, error) {
 	log.Println("creating jwt handler")
-	token := jwt.New(jwt.SigningMethodRS256)
-	token.Claims = jwt.StandardClaims{
+	claims := jwt.StandardClaims{
 		Audience:  projectId,
 		IssuedAt:  time.Now().Unix(),
 		ExpiresAt: time.Now().Add(24 * time.Hour).Unix(),
 	}
+	token := jwt.NewWithClaims(jwt.GetSigningMethod("RS256"), claims)
 	log.Println("Load Private Key")
 	keyBytes, err := ioutil.ReadFile(privateKey)
 	if err != nil {
@@ -25,14 +25,14 @@ func jwtHandler(tlsConfig *tls.Config, projectId string, privateKey string) (str
 		return "", err
 	}
 
-	log.Println("[main] Parse Private Key")
+	log.Println("Parse Private Key")
 	key, err := jwt.ParseRSAPrivateKeyFromPEM(keyBytes)
 	if err != nil {
 		log.Fatal(err)
 		return "", err
 	}
 
-	log.Println("[main] Sign String")
+	log.Println("Sign String")
 	tokenString, err := token.SignedString(key)
 	if err != nil {
 		log.Fatal(err)
@@ -41,11 +41,16 @@ func jwtHandler(tlsConfig *tls.Config, projectId string, privateKey string) (str
 	return tokenString, err
 }
 
-func createTLSConfig(caCertPath string) (*tls.Config, error) {
+func CreateTLSConfig(caCertPath string) (*tls.Config, error) {
 	certpool := x509.NewCertPool()
+	log.Println(caCertPath)
 	pemCerts, err := ioutil.ReadFile(caCertPath)
 	if err == nil {
+		//log.Println(pemCerts)
+		//log.Println(string(pemCerts))
 		certpool.AppendCertsFromPEM(pemCerts)
+		//log.Println(certpool)
+		//time.Sleep(10 * time.Second)
 	} else {
 		log.Fatal(err)
 		return nil, err
@@ -59,6 +64,8 @@ func createTLSConfig(caCertPath string) (*tls.Config, error) {
 		Certificates:       []tls.Certificate{},
 		MinVersion:         tls.VersionTLS12,
 	}
+	//log.Println(config)
+	//log.Println(config.RootCAs)
 	return config, nil
 }
 
