@@ -30,7 +30,7 @@ func ConfigureClient(projectID string, region string, registryID string, deviceI
 	broker := fmt.Sprintf("ssl://%v:%v", bridgeHost, bridgePort)
 	log.Printf("Broker '%v'", broker)
 	opts.AddBroker(broker)
-	opts.SetClientID(clientID).SetTLSConfig(config)
+	opts.SetClientID(clientID).SetTLSConfig(&tls.Config{MinVersion: tls.VersionTLS12})
 	opts.SetUsername("unused-device")
 	opts.SetPassword(jwtToken)
 	opts.SetProtocolVersion(4)

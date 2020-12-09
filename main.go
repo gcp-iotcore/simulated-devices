@@ -26,5 +26,5 @@ var (
 func main() {
 	fmt.Println("main function")
 	flag.Parse()
-	devices.StartEnvDevice(*certsCA, *projectID, *privateKey, *region, *registryID, *deviceID, *bridge.host, *bridge.port)
+	devices.StartHTTPEnvDevice(*certsCA, *projectID, *privateKey, *region, *registryID, *deviceID, *bridge.host, *bridge.port)
 }
